@@ -140,6 +140,7 @@ body {
 
     .chat-input {
         padding: 8px;
+        margin-bottom: 80px;
     }
 
     .chat-input input {
