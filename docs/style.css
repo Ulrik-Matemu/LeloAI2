@@ -127,6 +127,7 @@ body {
         height: 100vh;
         max-height: none;
         border-radius: 0;
+        padding: 70px;
     }
 
     .chat-messages {
