@@ -1,48 +1,40 @@
-const apiUrl = "http://localhost:3000"; // Ensure this is your backend URL
+// Configuration
+const API_KEY = 'AIzaSyD5FSHCfoLp-fcYADVhjthGHYbBenSJX80'; // Replace with your actual API key
+const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
 document.getElementById("send-button").addEventListener("click", async () => {
   const inputField = document.getElementById("user-input");
-  const message = inputField.value.trim(); // Get the user's input message
+  const message = inputField.value.trim();
 
   if (!message) {
     console.log("No message entered");
-    return; // Don't proceed if no message
+    return;
   }
 
-  // Display the user's message first
   displayMessage("user", message);
-
-  // Clear the input field
   inputField.value = "";
 
   try {
-    // Send the message to the backend
-    const chatResponse = await fetch(`${apiUrl}/chat`, {
-      method: "POST",
+    const response = await fetch(`${API_URL}?key=${API_KEY}`, {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ message }), // Send the message as JSON
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: message }] }]
+      })
     });
 
-    // Check if the response is okay
-    if (!chatResponse.ok) {
-      throw new Error("Failed to fetch chat response");
+    if (!response.ok) {
+      throw new Error('API request failed');
     }
 
-    const responseData = await chatResponse.json();
-    console.log("Server response:", responseData); // Log the server response
-
-    // Display the bot's response with typewriter effect
-   if (responseData.message) {
-    displayMessage('bot', responseData.message) 
-   } else {
-    displayMessage('bot', "Nunua bundle fala we");
-   }
-
+    const data = await response.json();
+    const chatResponse = data.candidates[0].content.parts[0].text;
+    displayMessage('bot', chatResponse);
   } catch (error) {
     console.error("Error:", error);
-    displayMessage("bot", "Samahani, kuna tatizo. Tafadhali jaribu tena.");
+    displayMessage("bot", "Sorry, there was an error. Please try again.");
   }
 });
 
@@ -54,31 +46,25 @@ function typeWriter(element, text, speed = 10) {
     if (index < length) {
       element.innerHTML += text.charAt(index);
       index++;
-      setTimeout(type, speed); // Call function recursively
+      setTimeout(type, speed);
     }
   }
 
-  type(); // Start the typing effect
+  type();
 }
 
 function displayMessage(sender, text) {
   const chatMessages = document.getElementById("chat-messages");
-
-  // Create a new message element
   const messageElement = document.createElement("div");
   messageElement.classList.add("message", sender);
-
-  // Append the new message element to the chat container
   chatMessages.appendChild(messageElement);
 
-  // If the message is from the bot, apply the typewriter effect
   if (sender === "bot") {
-    messageElement.innerHTML = ""; // Clear any existing text
-    typeWriter(messageElement, text); // Apply typewriter effect
+    messageElement.innerHTML = "";
+    typeWriter(messageElement, text);
   } else {
-    messageElement.innerHTML = text; // Directly set text for user messages
+    messageElement.innerHTML = text;
   }
 
-  // Scroll to the bottom of the chat automatically after appending a message
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
