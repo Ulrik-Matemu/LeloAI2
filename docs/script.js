@@ -13,6 +13,11 @@ document.getElementById("send-button").addEventListener("click", async () => {
 
   displayMessage("user", message);
   inputField.value = "";
+  
+    if (message.toLowerCase().includes("developer")) {
+    displayMessage("bot", "This interface was developed by Ulrik Matemu.");
+    return;
+  }
 
   try {
     const response = await fetch(`${API_URL}?key=${API_KEY}`, {
